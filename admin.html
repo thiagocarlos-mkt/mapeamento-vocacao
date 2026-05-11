@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin • Mapeamento de Vocação</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --transition: all 0.3s ease;
+    }
+
+    [data-theme="dark"] {
+      --bg:           #0b0908;
+      --surface:      #111010;
+      --surface2:     #161412;
+      --surface3:     #1a1816;
+      --border:       #1e1c1a;
+      --border2:      #2a2724;
+      --gold:         #c9a96e;
+      --gold-dim:     rgba(201,169,110,0.10);
+      --text:         #e8e0d5;
+      --text2:        #9e9590;
+      --muted:        #5a5450;
+      --green:        #7eb89a;
+      --blue:         #7098c9;
+      --busca:        #7098c9;
+      --virada:       #c9a96e;
+      --chamado:      #7eb89a;
+      --shadow:       0 4px 24px rgba(0,0,0,0.4);
+    }
+
+    [data-theme="light"] {
+      --bg:           #f5f2ee;
+      --surface:      #ffffff;
+      --surface2:     #faf8f5;
+      --surface3:     #f0ece6;
+      --border:       #e2ddd7;
+      --border2:      #d0c9c0;
+      --gold:         #a67c3a;
+      --gold-dim:     rgba(166,124,58,0.08);
+      --text:         #1a1714;
+      --text2:        #5a5047;
+      --muted:        #a09890;
+      --green:        #4a8c6a;
+      --blue:         #3a6898;
+      --busca:        #3a6898;
+      --virada:       #a67c3a;
+      --chamado:      #4a8c6a;
+      --shadow:       0 4px 24px rgba(0,0,0,0.08);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .login-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      padding: 24px;
+    }
+
+    .login-box {
+      max-width: 360px;
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 48px 32px;
+      border-radius: 4px;
+    }
+
+    .login-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.75rem;
+      font-weight: 400;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .login-subtitle {
+      font-size: 0.9rem;
+      color: var(--text2);
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--surface2);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,169,110,0.1);
+    }
+
+    .login-error {
+      color: #e57373;
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .login-error.show {
+      display: block;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 12px;
+      background: var(--gold);
+      color: #0b0908;
+      border: 1px solid var(--gold);
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-login:hover {
+      opacity: 0.9;
+    }
+
+    /* Admin Panel */
+    .admin-container {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .topbar-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      font-weight: 400;
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      margin-right: 6px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .status-text {
+      font-size: 0.85rem;
+      color: var(--text2);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .theme-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: var(--transition);
+    }
+
+    .theme-toggle:hover {
+      background: var(--surface3);
+      border-color: var(--gold);
+    }
+
+    .btn-logout {
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+
+    .btn-logout:hover {
+      border-color: #e57373;
+      color: #e57373;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 32px 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .toolbar-left {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .toolbar-right {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+
+    .btn:hover {
+      border-color: var(--gold);
+      background: var(--gold-dim);
+    }
+
+    .search-input {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--surface2);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      width: 200px;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 24px;
+    }
+
+    .card-value {
+      font-size: 2rem;
+      font-family: 'DM Mono', monospace;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .card-label {
+      font-size: 0.9rem;
+      color: var(--text2);
+      margin-bottom: 12px;
+    }
+
+    .card-bar {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .card-bar-fill {
+      height: 100%;
+      background: var(--gold);
+      width: 0%;
+      animation: fillBar 0.8s ease forwards;
+    }
+
+    @keyframes fillBar {
+      from { width: 0%; }
+      to { width: var(--percent, 100%); }
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .chart-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 24px;
+    }
+
+    .chart-title {
+      font-weight: 600;
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+    }
+
+    .donut-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .donut-svg {
+      width: 200px;
+      height: 200px;
+    }
+
+    .donut-legend {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .bars-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .bar-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bar-label {
+      min-width: 100px;
+      font-size: 0.85rem;
+      color: var(--text2);
+    }
+
+    .bar-fill {
+      flex: 1;
+      height: 24px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bar-progress {
+      height: 100%;
+      background: linear-gradient(90deg, #7098c9, #c9a96e, #7eb89a);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 8px;
+      font-size: 0.75rem;
+      font-family: 'DM Mono', monospace;
+      color: white;
+    }
+
+    .table-wrapper {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    .table thead {
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .table th {
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text2);
+    }
+
+    .table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border2);
+    }
+
+    .table tbody tr {
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .table tbody tr:hover {
+      background: var(--surface2);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-busca {
+      background: var(--busca);
+      color: white;
+    }
+
+    .badge-virada {
+      background: var(--virada);
+      color: #0b0908;
+    }
+
+    .badge-chamado {
+      background: var(--chamado);
+      color: white;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      padding: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .pagination button {
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      border-radius: 3px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .pagination button:hover:not(:disabled) {
+      border-color: var(--gold);
+      background: var(--gold-dim);
+    }
+
+    .pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .pagination-info {
+      font-size: 0.85rem;
+      color: var(--text2);
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      padding: 32px;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: var(--text2);
+      cursor: pointer;
+      font-size: 20px;
+    }
+
+    .modal-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      font-weight: 400;
+      margin-bottom: 24px;
+    }
+
+    .modal-section {
+      margin-bottom: 24px;
+    }
+
+    .modal-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--text2);
+      margin-bottom: 8px;
+    }
+
+    .modal-value {
+      font-family: 'DM Mono', monospace;
+      margin-bottom: 16px;
+    }
+
+    .scores-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .score-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 4px;
+      text-align: center;
+    }
+
+    .score-name {
+      font-size: 0.75rem;
+      color: var(--text2);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    .score-value {
+      font-family: 'DM Mono', monospace;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .answers-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .answer-item {
+      border-left: 2px solid var(--border);
+      padding-left: 12px;
+    }
+
+    .answer-question {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text2);
+      margin-bottom: 4px;
+    }
+
+    .answer-text {
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      background: var(--surface);
+      border-left: 3px solid var(--gold);
+      padding: 16px;
+      border-radius: 4px;
+      min-width: 300px;
+      z-index: 999;
+      animation: slideIn 0.3s ease;
+    }
+
+    .toast.error {
+      border-left-color: #e57373;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text2);
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .question-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .question-title {
+      font-weight: 600;
+      margin-bottom: 16px;
+      font-size: 0.95rem;
+    }
+
+    .question-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .question-bar-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .question-bar-label {
+      min-width: 200px;
+      font-size: 0.85rem;
+      color: var(--text);
+      line-height: 1.4;
+      flex-shrink: 0;
+    }
+
+    .question-bar-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .question-bar-fill {
+      height: 32px;
+      background: linear-gradient(90deg, var(--blue), var(--gold), var(--green));
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 8px;
+      color: white;
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .question-bar-count {
+      min-width: 40px;
+      text-align: right;
+      font-family: 'DM Mono', monospace;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    @media (max-width: 1000px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .toolbar {
+        flex-direction: column;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .table-wrapper {
+        overflow-x: auto;
+      }
+
+      .donut-wrapper {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- LOGIN -->
+  <div class="login-container" id="login-screen">
+    <div class="login-box">
+      <h2 class="login-title">Admin</h2>
+      <p class="login-subtitle">Painel Administrativo</p>
+      <div class="login-error" id="login-error">Senha incorreta</div>
+      <div class="form-group">
+        <label for="password">Senha</label>
+        <input type="password" id="password" placeholder="••••••" onkeypress="if(event.key==='Enter') login()">
+      </div>
+      <button class="btn-login" onclick="login()">Entrar</button>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div class="admin-container" id="admin-screen" style="display: none;">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title">✓ Telma Abrahão • Admin</div>
+        <div class="status-text">
+          <span class="status-dot"></span>
+          Mapeamento de Vocação
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Alternar tema">
+          <span id="theme-icon">☀️</span>
+        </button>
+        <button class="btn-logout" onclick="logout()">Sair</button>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <span style="font-weight: 600;">Respostas</span>
+          <span style="color: var(--text2); font-size: 0.9rem;" id="total-count">0 registros</span>
+        </div>
+        <div class="toolbar-right">
+          <input type="text" class="search-input" id="search-email" placeholder="Buscar por e-mail..." onkeyup="filterTable()">
+          <button class="btn" onclick="filterByProfile('todos')">📊 Todos os perfis</button>
+          <button class="btn" onclick="loadData()">↻ Atualizar</button>
+          <button class="btn" onclick="exportCSV()">⬇ CSV</button>
+          <button class="btn" onclick="exportXLSX()">📊 XLSX</button>
+          <button class="btn" onclick="exportSheets()">📑 Sheets</button>
+        </div>
+      </div>
+
+      <div class="summary-grid" id="summary-grid"></div>
+
+      <div class="charts-grid">
+        <div class="chart-container">
+          <div class="chart-title">Distribuição de Perfis</div>
+          <div class="donut-wrapper">
+            <svg class="donut-svg" viewBox="0 0 200 200" id="donut-chart"></svg>
+            <div class="donut-legend" id="donut-legend"></div>
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <div class="chart-title">Investimento Desejado (Q16)</div>
+          <div class="bars-chart" id="bars-chart"></div>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>E-mail</th>
+              <th>Perfil</th>
+              <th>Busca</th>
+              <th>Virada</th>
+              <th>Chamado</th>
+              <th>Fase de Vida</th>
+              <th>Renda</th>
+              <th>Investimento</th>
+              <th>Data</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+          </tbody>
+        </table>
+        <div class="pagination">
+          <button onclick="prevPage()" id="prev-btn">← Anterior</button>
+          <span class="pagination-info" id="page-info">Página 1</span>
+          <button onclick="nextPage()" id="next-btn">Próxima →</button>
+        </div>
+      </div>
+
+      <div class="empty-state" id="empty-state" style="display: none;">
+        <div class="empty-state-icon">∅</div>
+        <p>Nenhum registro encontrado</p>
+      </div>
+
+      <!-- ANÁLISE POR PERGUNTA -->
+      <div style="margin-top: 48px;">
+        <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 400; margin-bottom: 32px;">Análise Detalhada por Pergunta</h2>
+        <div id="questions-analysis"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal()">×</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script>
+    const CONFIG = {
+      SUPABASE_URL:      'https://megtdgonrqzyskevkjej.supabase.co',
+      SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lZ3RkZ29ucnF6eXNrZXZramVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MjgzNDMsImV4cCI6MjA5NDEwNDM0M30.SgiE_H8mfDzC9wPAy1zLGANz-QsdoUZuw3eBlnfTtjY',
+      SHEETS_URL:        '',
+    };
+
+    const ADMIN_PASSWORD = 'telma2024';
+
+    const PERGUNTAS = {
+      q1: 'Em qual fase da vida você está agora?',
+      q2: 'Como você descreveria sua situação profissional hoje?',
+      q3: 'Qual é a sua faixa etária?',
+      q4: 'Qual é a sua renda mensal aproximada hoje?',
+      q5: 'Quando você olha para a sua história, o que mais se repete?',
+      q6: 'O que você já tentou para entender e mudar esses padrões?',
+      q7: 'O que você sente que ainda não encontrou nessas tentativas?',
+      q8: 'Qual dessas frases mais ressoa com o que você vive?',
+      q9: 'Em qual área da sua vida esses padrões aparecem com mais força?',
+      q10: 'Qual mudança você mais deseja viver?',
+      q11: 'Se você pudesse descrever como quer se sentir daqui a um ano, qual frase seria mais próxima?',
+      q12: 'Quando alguém próximo passa por algo difícil emocionalmente, qual é sua reação natural?',
+      q13: 'Você já pensou em trabalhar com saúde emocional, trauma ou desenvolvimento humano?',
+      q14: 'O que mais te aproximaria de transformar o que você viveu em profissão?',
+      q15: 'Como você se sente em relação a investir em uma formação que transforme sua vida e sua carreira?',
+      q16: 'Se encontrasse uma formação profunda, com método sólido e comunidade de suporte, qual investimento faria sentido para você?',
+      q17: 'O que você espera descobrir sobre si mesmo(a) depois deste mapeamento?',
+    };
+
+    let allData = [];
+    let filteredData = [];
+    let currentPage = 1;
+    const pageSize = 25;
+
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
+      updateToggleIcon();
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      updateToggleIcon();
+    }
+
+    function updateToggleIcon() {
+      const theme = document.documentElement.getAttribute('data-theme');
+      document.getElementById('theme-icon').textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    function login() {
+      const password = document.getElementById('password').value;
+      if (password === ADMIN_PASSWORD) {
+        sessionStorage.setItem('admin-session', 'true');
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('admin-screen').style.display = 'flex';
+        loadData();
+      } else {
+        document.getElementById('login-error').classList.add('show');
+      }
+    }
+
+    function logout() {
+      sessionStorage.removeItem('admin-session');
+      document.getElementById('login-screen').style.display = 'flex';
+      document.getElementById('admin-screen').style.display = 'none';
+      document.getElementById('password').value = '';
+      document.getElementById('login-error').classList.remove('show');
+    }
+
+    async function loadData() {
+      try {
+        const res = await fetch(
+          `${CONFIG.SUPABASE_URL}/rest/v1/vocacao_respostas?select=*&order=created_at.desc&limit=1000`,
+          {
+            headers: {
+              'apikey': CONFIG.SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${CONFIG.SUPABASE_ANON_KEY}`
+            }
+          }
+        );
+
+        if (res.ok) {
+          allData = await res.json();
+          filteredData = allData;
+          currentPage = 1;
+          renderTable();
+          renderSummary();
+          renderCharts();
+        }
+      } catch (err) {
+        showToast('Erro ao carregar dados', true);
+      }
+    }
+
+    function renderSummary() {
+      const total = filteredData.length;
+      const busca = filteredData.filter(d => d.perfil_dominante === 'busca').length;
+      const virada = filteredData.filter(d => d.perfil_dominante === 'virada').length;
+      const chamado = filteredData.filter(d => d.perfil_dominante === 'chamado').length;
+
+      document.getElementById('total-count').textContent = `${total} registros`;
+
+      const cards = [
+        { label: 'Total de respostas', value: total, sub: 'leads capturados', percent: 100 },
+        { label: 'Estágio 1 – Busca', value: busca, sub: `${((busca/total)*100).toFixed(0)}% do total`, percent: ((busca/total)*100), color: 'var(--busca)' },
+        { label: 'Estágio 2 – Virada', value: virada, sub: `${((virada/total)*100).toFixed(0)}% do total`, percent: ((virada/total)*100), color: 'var(--virada)' },
+        { label: 'Estágio 3 – Chamado', value: chamado, sub: `${((chamado/total)*100).toFixed(0)}% do total`, percent: ((chamado/total)*100), color: 'var(--chamado)' },
+      ];
+
+      document.getElementById('summary-grid').innerHTML = cards.map(c => `
+        <div class="card">
+          <div class="card-value">${c.value}</div>
+          <div class="card-label">${c.label}</div>
+          <div class="card-bar">
+            <div class="card-bar-fill" style="--percent: ${c.percent}%; background: ${c.color || 'var(--gold)'};"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderCharts() {
+      renderDonut();
+      renderBarsChart();
+      renderQuestionsAnalysis();
+    }
+
+    function renderQuestionsAnalysis() {
+      const PERGUNTAS_DETALHES = {
+        q1: { titulo: 'Q1: Em qual fase da vida você está agora?', respostas: ['Ainda estou me encontrando – buscando direção e identidade', 'Estou estabelecido(a), mas sentindo que falta algo', 'Estou num momento de transição – mudando de fase ou de caminho', 'Estou construindo algo novo – profissional ou pessoalmente', 'Estou bem, mas quero ir mais fundo em mim mesmo(a)'] },
+        q2: { titulo: 'Q2: Como você descreveria sua situação profissional hoje?', respostas: ['Trabalho na área da saúde, terapia ou cuidado de pessoas', 'Trabalho com educação, desenvolvimento humano ou liderança', 'Sou empreendedor(a) ou tenho meu próprio negócio', 'Trabalho em outra área e estou pensando em mudar', 'Estou em transição de carreira', 'Ainda estou estudando ou definindo meu caminho'] },
+        q3: { titulo: 'Q3: Qual é a sua faixa etária?', respostas: ['Até 25 anos', 'Entre 26 e 35 anos', 'Entre 36 e 45 anos', 'Entre 46 e 55 anos', 'Acima de 55 anos'] },
+        q4: { titulo: 'Q4: Qual é a sua renda mensal aproximada hoje?', respostas: ['Ainda não tenho renda própria ou estável', 'Até R$ 2.000', 'Entre R$ 2.001 e R$ 5.000', 'Entre R$ 5.001 e R$ 10.000', 'Acima de R$ 10.000'] },
+        q5: { titulo: 'Q5: Quando você olha para a sua história, o que mais se repete?', respostas: ['Relacionamentos que seguem o mesmo roteiro – mesmo quando eu quero que seja diferente', 'A sensação de estar sempre no limite emocional, sem entender por quê', 'Bloqueios que me impedem de avançar, mesmo quando eu sei o que fazer', 'A dificuldade de me colocar em primeiro lugar sem culpa', 'Uma mistura de tudo isso – é difícil escolher só um'] },
+        q6: { titulo: 'Q6: O que você já tentou para entender e mudar esses padrões?', respostas: ['Terapia ou acompanhamento psicológico', 'Cursos, formações ou leituras sobre autoconhecimento', 'Coaching ou mentoria', 'Práticas espirituais ou corporais', 'Ainda não tentei nada – esse é meu ponto de partida', 'Tentei várias coisas, mas sinto que ainda falta algo'], multi: true },
+        q7: { titulo: 'Q7: O que você sente que ainda não encontrou nessas tentativas?', respostas: ['Profundidade real – ficou na superfície', 'Algo que fosse além do entendimento e chegasse na mudança de verdade', 'Um método que fizesse sentido para o que eu vivo', 'Coragem para ir mais fundo', 'Ainda estou no processo – continuo buscando'] },
+        q8: { titulo: 'Q8: Qual dessas frases mais ressoa com o que você vive?', respostas: ['Eu reajo antes de pensar, e me arrependo depois', 'Eu sei o que preciso fazer, e não consigo me mover', 'Eu fujo antes de me machucar, e fico vazio(a) depois', 'Eu coloco todo mundo na frente e me perco no processo', 'Eu transito entre vários desses, dependendo do momento'] },
+        q9: { titulo: 'Q9: Em qual área da sua vida esses padrões aparecem com mais força?', respostas: ['Nos relacionamentos afetivos', 'Na relação com a família de origem', 'Na vida profissional e financeira', 'Na autoestima e na forma como me vejo', 'No corpo – saúde, energia, presença'], multi: true },
+        q10: { titulo: 'Q10: Qual mudança você mais deseja viver?', respostas: ['Estar em paz com o meu passado, sem que ele me comande', 'Parar de repetir os mesmos padrões nos meus relacionamentos', 'Sentir que sou suficiente, sem precisar provar isso o tempo todo', 'Ter uma vida com mais sentido e direção clara', 'Viver com mais leveza e menos culpa', 'Ajudar outras pessoas com o que aprendo sobre mim mesmo(a)'], multi: true },
+        q11: { titulo: 'Q11: Se você pudesse descrever como quer se sentir daqui a um ano, qual frase seria mais próxima?', respostas: ['Finalmente entendo por que faço o que faço – e tenho escolha sobre isso', 'Estou ajudando pessoas a entenderem o que eu aprendi sobre mim', 'Construí uma profissão que faz sentido com quem eu sou', 'Me sinto inteiro(a) – sem peças faltando', 'Todas essas – quero tudo isso'] },
+        q12: { titulo: 'Q12: Quando alguém próximo passa por algo difícil emocionalmente, qual é sua reação natural?', respostas: ['Sinto profundamente junto – às vezes mais do que deveria', 'Quero entender o que está por trás – não fico só na superfície', 'Tenho vontade de ajudar, mas não sei como fazer isso de forma útil', 'Fico desconfortável – ainda não sei lidar com a dor dos outros', 'Consigo estar presente e ajudar, sem me perder no processo'] },
+        q13: { titulo: 'Q13: Você já pensou em trabalhar com saúde emocional, trauma ou desenvolvimento humano?', respostas: ['Nunca pensei nisso – é a primeira vez que considero', 'Já pensei, mas achei que não teria o preparo necessário', 'Tenho curiosidade, mas nunca aprofundei', 'Sim, é algo que quero muito – só falta o método certo', 'Já trabalho nessa área e quero me aprofundar'] },
+        q14: { titulo: 'Q14: O que mais te aproximaria de transformar o que você viveu em profissão?', respostas: ['Entender meus próprios padrões com mais profundidade primeiro', 'Ter um método claro e aplicável – não só teoria', 'Saber que posso fazer isso mesmo sem ser psicólogo(a)', 'Ver que existe demanda real e possibilidade de renda', 'Ter o apoio de uma comunidade que caminha junto'], multi: true },
+        q15: { titulo: 'Q15: Como você se sente em relação a investir em uma formação que transforme sua vida e sua carreira?', respostas: ['Ainda não estou no momento financeiro para isso', 'Estou aberto(a), mas preciso sentir que vale antes de decidir', 'Estou pronto(a) – só preciso encontrar o que faz sentido para mim', 'Já invisto regularmente e estou buscando o próximo passo'] },
+        q16: { titulo: 'Q16: Se encontrasse uma formação profunda, com método sólido e comunidade de suporte, qual investimento faria sentido para você?', respostas: ['Até R$ 800', 'Entre R$ 801 e R$ 1.500', 'Entre R$ 1.501 e R$ 2.500', 'Entre R$ 2.501 e R$ 4.000', 'Acima de R$ 4.000 – se eu sentir que realmente vale'] },
+        q17: { titulo: 'Q17: O que você espera descobrir sobre si mesmo(a) depois deste mapeamento?', respostas: ['Se tenho vocação para trabalhar com outras pessoas', 'De onde vêm os padrões que me prendem', 'Se o que vivi pode realmente se tornar algo útil para o mundo', 'Qual é meu próximo passo real', 'Tudo isso – quero ter clareza completa'] }
+      };
+
+      let html = '';
+
+      for (let qNum = 1; qNum <= 17; qNum++) {
+        const qKey = `q${qNum}`;
+        const qData = PERGUNTAS_DETALHES[qKey];
+        const fieldKey = `q${qNum}_`;
+
+        // Contar respostas
+        const respostasCount = {};
+        qData.respostas.forEach((resp, idx) => {
+          respostasCount[idx] = 0;
+        });
+
+        filteredData.forEach(record => {
+          const fieldName = Object.keys(record).find(k => k.startsWith(fieldKey));
+          if (fieldName && record[fieldName]) {
+            const value = record[fieldName];
+            // Se é multi-select, splittar por ;
+            if (qData.multi) {
+              const items = value.split(';').map(s => s.trim());
+              items.forEach(item => {
+                const idx = qData.respostas.findIndex(r => r === item);
+                if (idx >= 0) respostasCount[idx]++;
+              });
+            } else {
+              const idx = qData.respostas.findIndex(r => r === value);
+              if (idx >= 0) respostasCount[idx]++;
+            }
+          }
+        });
+
+        const maxCount = Math.max(...Object.values(respostasCount), 1);
+
+        html += `
+          <div class="question-card">
+            <div class="question-title">${qData.titulo}</div>
+            <div class="question-bars">
+        `;
+
+        qData.respostas.forEach((resp, idx) => {
+          const count = respostasCount[idx] || 0;
+          const percent = ((count / filteredData.length) * 100).toFixed(0);
+          const width = ((count / maxCount) * 100);
+
+          html += `
+            <div class="question-bar-item">
+              <div class="question-bar-label">${resp}</div>
+              <div class="question-bar-container">
+                <div class="question-bar-fill" style="width: ${width}%">
+                  ${count > 0 ? count : ''}
+                </div>
+              </div>
+              <div class="question-bar-count">${count}</div>
+            </div>
+          `;
+        });
+
+        html += `
+            </div>
+          </div>
+        `;
+      }
+
+      document.getElementById('questions-analysis').innerHTML = html;
+    }
+
+    function renderDonut() {
+      const busca = filteredData.filter(d => d.perfil_dominante === 'busca').length;
+      const virada = filteredData.filter(d => d.perfil_dominante === 'virada').length;
+      const chamado = filteredData.filter(d => d.perfil_dominante === 'chamado').length;
+      const total = busca + virada + chamado;
+
+      const radius = 90;
+      const cx = 100, cy = 100;
+
+      let startAngle = 0;
+      const slices = [
+        { name: 'Busca', value: busca, color: '#7098c9' },
+        { name: 'Virada', value: virada, color: '#c9a96e' },
+        { name: 'Chamado', value: chamado, color: '#7eb89a' },
+      ];
+
+      let svgPath = '';
+      slices.forEach(slice => {
+        const sliceAngle = (slice.value / total) * 360;
+        const endAngle = startAngle + sliceAngle;
+
+        const x1 = cx + radius * Math.cos((startAngle * Math.PI) / 180);
+        const y1 = cy + radius * Math.sin((startAngle * Math.PI) / 180);
+        const x2 = cx + radius * Math.cos((endAngle * Math.PI) / 180);
+        const y2 = cy + radius * Math.sin((endAngle * Math.PI) / 180);
+
+        const largeArc = sliceAngle > 180 ? 1 : 0;
+
+        const path = `M ${cx} ${cy} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+
+        svgPath += `<path d="${path}" fill="${slice.color}" stroke="var(--surface)" stroke-width="2" />`;
+
+        startAngle = endAngle;
+      });
+
+      const centerCircle = `<circle cx="${cx}" cy="${cy}" r="50" fill="var(--surface)" />
+                            <text x="${cx}" y="${cy}" text-anchor="middle" dy="0.3em" font-size="20" font-weight="600" fill="var(--text)">
+                              ${total}
+                            </text>`;
+
+      document.getElementById('donut-chart').innerHTML = svgPath + centerCircle;
+
+      document.getElementById('donut-legend').innerHTML = slices.map(s => `
+        <div class="legend-item">
+          <div class="legend-dot" style="background: ${s.color};"></div>
+          <span>${s.name}: <strong>${s.value}</strong> (${total > 0 ? ((s.value/total)*100).toFixed(0) : 0}%)</span>
+        </div>
+      `).join('');
+    }
+
+    function renderBarsChart() {
+      const responses = {};
+      filteredData.forEach(d => {
+        const ans = d.q16_valor_formacao;
+        if (ans) responses[ans] = (responses[ans] || 0) + 1;
+      });
+
+      const maxCount = Math.max(...Object.values(responses), 1);
+
+      const html = Object.entries(responses).map(([label, count]) => `
+        <div class="bar-item">
+          <div class="bar-label">${label}</div>
+          <div class="bar-fill">
+            <div class="bar-progress" style="width: ${(count/maxCount)*100}%">
+              ${count}
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('bars-chart').innerHTML = html || '<p style="color: var(--text2);">Sem dados</p>';
+    }
+
+    function renderTable() {
+      const start = (currentPage - 1) * pageSize;
+      const end = start + pageSize;
+      const pageData = filteredData.slice(start, end);
+
+      if (pageData.length === 0) {
+        document.getElementById('table-body').innerHTML = '';
+        document.getElementById('empty-state').style.display = 'block';
+        document.getElementById('prev-btn').disabled = true;
+        document.getElementById('next-btn').disabled = true;
+        return;
+      }
+
+      document.getElementById('empty-state').style.display = 'none';
+
+      document.getElementById('table-body').innerHTML = pageData.map((d, idx) => {
+        const date = new Date(d.created_at).toLocaleDateString('pt-BR');
+        return `
+          <tr onclick="openModal(${allData.indexOf(d)})">
+            <td>${start + idx + 1}</td>
+            <td>${d.email}</td>
+            <td><span class="badge badge-${d.perfil_dominante}">${d.perfil_dominante}</span></td>
+            <td style="font-family: 'DM Mono';">${d.score_busca}</td>
+            <td style="font-family: 'DM Mono';">${d.score_virada}</td>
+            <td style="font-family: 'DM Mono';">${d.score_chamado}</td>
+            <td>${(d.q1_fase_vida || '').substring(0, 20)}...</td>
+            <td>${(d.q4_renda || '').substring(0, 20)}...</td>
+            <td>${(d.q16_valor_formacao || '').substring(0, 15)}...</td>
+            <td style="font-family: 'DM Mono';">${date}</td>
+          </tr>
+        `;
+      }).join('');
+
+      const totalPages = Math.ceil(filteredData.length / pageSize);
+      document.getElementById('page-info').textContent = `Página ${currentPage} de ${totalPages}`;
+      document.getElementById('prev-btn').disabled = currentPage === 1;
+      document.getElementById('next-btn').disabled = currentPage === totalPages;
+    }
+
+    function nextPage() {
+      const totalPages = Math.ceil(filteredData.length / pageSize);
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderTable();
+        window.scrollTo(0, 0);
+      }
+    }
+
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        renderTable();
+        window.scrollTo(0, 0);
+      }
+    }
+
+    function filterTable() {
+      const query = document.getElementById('search-email').value.toLowerCase();
+      filteredData = allData.filter(d => d.email.toLowerCase().includes(query));
+      currentPage = 1;
+      renderTable();
+    }
+
+    function filterByProfile(perfil) {
+      if (perfil === 'todos') {
+        filteredData = allData;
+      } else {
+        filteredData = allData.filter(d => d.perfil_dominante === perfil);
+      }
+      currentPage = 1;
+      renderTable();
+      renderSummary();
+      renderCharts();
+    }
+
+    function openModal(idx) {
+      const d = allData[idx];
+      const date = new Date(d.created_at).toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      let answers = '';
+      for (let i = 1; i <= 17; i++) {
+        const key = `q${i}_`;
+        const found = Object.keys(d).find(k => k.startsWith(key));
+        if (found) {
+          const q = PERGUNTAS[`q${i}`] || '';
+          const ans = d[found] || '';
+          answers += `
+            <div class="answer-item">
+              <div class="answer-question">Pergunta ${i}: ${q}</div>
+              <div class="answer-text">${ans}</div>
+            </div>
+          `;
+        }
+      }
+
+      const html = `
+        <h3 class="modal-title">${d.email}</h3>
+        <div class="modal-section">
+          <div class="modal-label">Data</div>
+          <div class="modal-value">${date}</div>
+        </div>
+        <div class="modal-section">
+          <div class="modal-label">Scores</div>
+          <div class="scores-grid">
+            <div class="score-card">
+              <div class="score-name">Busca</div>
+              <div class="score-value">${d.score_busca}</div>
+            </div>
+            <div class="score-card">
+              <div class="score-name">Virada</div>
+              <div class="score-value">${d.score_virada}</div>
+            </div>
+            <div class="score-card">
+              <div class="score-name">Chamado</div>
+              <div class="score-value">${d.score_chamado}</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-section">
+          <div class="modal-label">Perfil Dominante</div>
+          <span class="badge badge-${d.perfil_dominante}">${d.perfil_dominante}</span>
+        </div>
+        <div class="modal-section">
+          <div class="modal-label">Respostas Completas</div>
+          <div class="answers-list">${answers}</div>
+        </div>
+      `;
+
+      document.getElementById('modal-body').innerHTML = html;
+      document.getElementById('modal').classList.add('show');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.remove('show');
+    }
+
+    document.getElementById('modal').onclick = (e) => {
+      if (e.target === document.getElementById('modal')) closeModal();
+    };
+
+    function exportCSV() {
+      let csv = '﻿';
+      const headers = ['ID','Email','Perfil','Score Busca','Score Virada','Score Chamado','Q1 Fase Vida','Q2 Situação Profissional','Q3 Faixa Etária','Q4 Renda','Q5 Histórico','Q6 Já Tentou','Q7 O que Faltou','Q8 Frase Ressoa','Q9 Área Desafio','Q10 Mudança Desejada','Q11 Como Quer se Sentir','Q12 Reação Emocional','Q13 Interesse Profissional','Q14 O que Aproximaria','Q15 Momento Investimento','Q16 Valor Formação','Q17 Expectativa','Data'];
+
+      csv += headers.join(',') + '\n';
+
+      filteredData.forEach((d, idx) => {
+        const row = [
+          idx + 1,
+          `"${d.email}"`,
+          d.perfil_dominante,
+          d.score_busca,
+          d.score_virada,
+          d.score_chamado,
+          `"${(d.q1_fase_vida || '').replace(/"/g, '""')}"`,
+          `"${(d.q2_situacao_profissional || '').replace(/"/g, '""')}"`,
+          `"${(d.q3_faixa_etaria || '').replace(/"/g, '""')}"`,
+          `"${(d.q4_renda || '').replace(/"/g, '""')}"`,
+          `"${(d.q5_historico || '').replace(/"/g, '""')}"`,
+          `"${(d.q6_ja_tentou || '').replace(/"/g, '""')}"`,
+          `"${(d.q7_o_que_faltou || '').replace(/"/g, '""')}"`,
+          `"${(d.q8_frase_ressoa || '').replace(/"/g, '""')}"`,
+          `"${(d.q9_area_desafio || '').replace(/"/g, '""')}"`,
+          `"${(d.q10_mudanca_desejada || '').replace(/"/g, '""')}"`,
+          `"${(d.q11_como_quer_se_sentir || '').replace(/"/g, '""')}"`,
+          `"${(d.q12_reacao_emocional || '').replace(/"/g, '""')}"`,
+          `"${(d.q13_interesse_profissional || '').replace(/"/g, '""')}"`,
+          `"${(d.q14_o_que_aproximaria || '').replace(/"/g, '""')}"`,
+          `"${(d.q15_momento_investimento || '').replace(/"/g, '""')}"`,
+          `"${(d.q16_valor_formacao || '').replace(/"/g, '""')}"`,
+          `"${(d.q17_expectativa || '').replace(/"/g, '""')}"`,
+          new Date(d.created_at).toLocaleDateString('pt-BR')
+        ];
+        csv += row.join(',') + '\n';
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `vocacao_respostas_${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+      showToast('CSV exportado com sucesso');
+    }
+
+    function exportXLSX() {
+      const headers = ['ID','Email','Perfil','Score Busca','Score Virada','Score Chamado','Q1 Fase Vida','Q2 Situação Profissional','Q3 Faixa Etária','Q4 Renda','Q5 Histórico','Q6 Já Tentou','Q7 O que Faltou','Q8 Frase Ressoa','Q9 Área Desafio','Q10 Mudança Desejada','Q11 Como Quer se Sentir','Q12 Reação Emocional','Q13 Interesse Profissional','Q14 O que Aproximaria','Q15 Momento Investimento','Q16 Valor Formação','Q17 Expectativa','Data'];
+
+      const data = [headers];
+
+      filteredData.forEach((d, idx) => {
+        const date = new Date(d.created_at).toLocaleDateString('pt-BR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        const row = [
+          d.id || '',
+          d.email || '',
+          d.perfil_dominante || '',
+          d.score_busca || 0,
+          d.score_virada || 0,
+          d.score_chamado || 0,
+          d.q1_fase_vida || '',
+          d.q2_situacao_profissional || '',
+          d.q3_faixa_etaria || '',
+          d.q4_renda || '',
+          d.q5_historico || '',
+          d.q6_ja_tentou || '',
+          d.q7_o_que_faltou || '',
+          d.q8_frase_ressoa || '',
+          d.q9_area_desafio || '',
+          d.q10_mudanca_desejada || '',
+          d.q11_como_quer_se_sentir || '',
+          d.q12_reacao_emocional || '',
+          d.q13_interesse_profissional || '',
+          d.q14_o_que_aproximaria || '',
+          d.q15_momento_investimento || '',
+          d.q16_valor_formacao || '',
+          d.q17_expectativa || '',
+          date
+        ];
+        data.push(row);
+      });
+
+      const ws = XLSX.utils.aoa_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Respostas');
+
+      // Ajustar largura das colunas
+      const colWidths = [
+        { wch: 10 }, // ID
+        { wch: 25 }, // Email
+        { wch: 12 }, // Perfil
+        { wch: 12 }, // Score Busca
+        { wch: 12 }, // Score Virada
+        { wch: 12 }, // Score Chamado
+        { wch: 20 }, // Q1
+        { wch: 25 }, // Q2
+        { wch: 15 }, // Q3
+        { wch: 15 }, // Q4
+        { wch: 30 }, // Q5
+        { wch: 30 }, // Q6
+        { wch: 30 }, // Q7
+        { wch: 30 }, // Q8
+        { wch: 30 }, // Q9
+        { wch: 30 }, // Q10
+        { wch: 30 }, // Q11
+        { wch: 30 }, // Q12
+        { wch: 30 }, // Q13
+        { wch: 30 }, // Q14
+        { wch: 30 }, // Q15
+        { wch: 30 }, // Q16
+        { wch: 30 }, // Q17
+        { wch: 20 }  // Data
+      ];
+      ws['!cols'] = colWidths;
+
+      XLSX.writeFile(wb, `vocacao_respostas_${new Date().toISOString().split('T')[0]}.xlsx`);
+      showToast('XLSX exportado com sucesso');
+    }
+
+    function exportSheets() {
+      if (!CONFIG.SHEETS_URL) {
+        showToast('Google Sheets não configurado', true);
+        return;
+      }
+
+      fetch(CONFIG.SHEETS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: JSON.stringify({
+          records: filteredData,
+          exported_at: new Date().toISOString()
+        })
+      }).then(() => {
+        showToast('Dados enviados para Google Sheets');
+      }).catch(() => {
+        showToast('Erro ao enviar para Sheets', true);
+      });
+    }
+
+    function showToast(msg, isError = false) {
+      const toast = document.createElement('div');
+      toast.className = `toast ${isError ? 'error' : ''}`;
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease forwards';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    if (sessionStorage.getItem('admin-session')) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('admin-screen').style.display = 'flex';
+      loadData();
+    }
+
+    initTheme();
+  </script>
+</body>
+</html>

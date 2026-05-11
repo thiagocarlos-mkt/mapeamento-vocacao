@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapeamento de Vocação • Telma Abrahão</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --transition: all 0.3s ease;
+    }
+
+    [data-theme="dark"] {
+      --bg:           #0b0908;
+      --surface:      #111010;
+      --surface2:     #161412;
+      --surface3:     #1a1816;
+      --border:       #1e1c1a;
+      --border2:      #2a2724;
+      --gold:         #c9a96e;
+      --gold-dim:     rgba(201,169,110,0.10);
+      --gold-dim2:    rgba(201,169,110,0.05);
+      --text:         #e8e0d5;
+      --text2:        #9e9590;
+      --muted:        #5a5450;
+      --green:        #7eb89a;
+      --green-dim:    rgba(126,184,154,0.10);
+      --blue:         #7098c9;
+      --blue-dim:     rgba(112,152,201,0.10);
+      --busca:        #7098c9;
+      --virada:       #c9a96e;
+      --chamado:      #7eb89a;
+      --busca-dim:    rgba(112,152,201,0.12);
+      --virada-dim:   rgba(201,169,110,0.12);
+      --chamado-dim:  rgba(126,184,154,0.12);
+      --shadow:       0 4px 24px rgba(0,0,0,0.4);
+    }
+
+    [data-theme="light"] {
+      --bg:           #f5f2ee;
+      --surface:      #ffffff;
+      --surface2:     #faf8f5;
+      --surface3:     #f0ece6;
+      --border:       #e2ddd7;
+      --border2:      #d0c9c0;
+      --gold:         #a67c3a;
+      --gold-dim:     rgba(166,124,58,0.08);
+      --gold-dim2:    rgba(166,124,58,0.04);
+      --text:         #1a1714;
+      --text2:        #5a5047;
+      --muted:        #a09890;
+      --green:        #4a8c6a;
+      --green-dim:    rgba(74,140,106,0.10);
+      --blue:         #3a6898;
+      --blue-dim:     rgba(58,104,152,0.10);
+      --busca:        #3a6898;
+      --virada:       #a67c3a;
+      --chamado:      #4a8c6a;
+      --busca-dim:    rgba(58,104,152,0.10);
+      --virada-dim:   rgba(166,124,58,0.10);
+      --chamado-dim:  rgba(74,140,106,0.10);
+      --shadow:       0 4px 24px rgba(0,0,0,0.08);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    #progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: var(--gold);
+      width: 0%;
+      transition: width 0.5s ease;
+      z-index: 998;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 999;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: var(--transition);
+    }
+
+    .theme-toggle:hover {
+      background: var(--surface2);
+      border-color: var(--gold);
+    }
+
+    .screens-container {
+      width: 100%;
+      max-width: 660px;
+      perspective: 1000px;
+    }
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      min-height: 100vh;
+      justify-content: center;
+      animation: fadeUp 0.42s ease forwards;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .tag {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text2);
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.5rem;
+      font-weight: 300;
+      line-height: 1.2;
+      margin-bottom: 24px;
+    }
+
+    .intro-lead {
+      font-size: 1.125rem;
+      line-height: 1.6;
+      color: var(--text2);
+      margin-bottom: 32px;
+      max-width: 540px;
+    }
+
+    .intro-note {
+      background: var(--surface2);
+      border-left: 3px solid var(--gold);
+      padding: 20px;
+      margin: 32px 0;
+      border-radius: 4px;
+      line-height: 1.6;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 28px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      gap: 8px;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      color: #0b0908;
+      border-color: var(--gold);
+      font-weight: 600;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--gold);
+      opacity: 0.9;
+      transform: translateX(4px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      border-color: var(--gold);
+      padding-left: 36px;
+    }
+
+    .intro-footer {
+      font-size: 0.85rem;
+      color: var(--text2);
+      margin-top: 24px;
+    }
+
+    /* Gate (Email) */
+    .gate-form {
+      max-width: 400px;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--surface2);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      transition: var(--transition);
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px var(--gold-dim2);
+    }
+
+    .error {
+      color: #e57373;
+      font-size: 0.85rem;
+      margin-top: 6px;
+      display: none;
+    }
+
+    .error.show {
+      display: block;
+    }
+
+    .form-note {
+      font-size: 0.85rem;
+      color: var(--text2);
+      margin-top: 24px;
+      text-align: center;
+    }
+
+    /* Quiz Screen */
+    .quiz-header {
+      margin-bottom: 48px;
+    }
+
+    .etapa-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text2);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .etapa-titulo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--text);
+      margin-bottom: 32px;
+      max-width: 540px;
+    }
+
+    .pergunta-numero {
+      font-size: 0.9rem;
+      color: var(--text2);
+      margin-bottom: 8px;
+    }
+
+    .pergunta-texto {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.75rem;
+      font-weight: 400;
+      line-height: 1.3;
+      margin-bottom: 24px;
+      color: var(--text);
+    }
+
+    .pergunta-nota {
+      font-size: 0.85rem;
+      color: var(--text2);
+      margin-bottom: 24px;
+      font-style: italic;
+    }
+
+    .opcoes {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 48px;
+    }
+
+    .opcao {
+      padding: 16px 20px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .opcao::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 3px;
+      background: var(--gold);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .opcao:hover {
+      border-color: var(--gold);
+      padding-left: 28px;
+    }
+
+    .opcao:hover::before {
+      opacity: 1;
+    }
+
+    .opcao.selected {
+      background: var(--gold-dim);
+      border-color: var(--gold);
+      padding-left: 28px;
+    }
+
+    .opcao.selected::before {
+      opacity: 1;
+    }
+
+    .quiz-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 48px;
+    }
+
+    .btn-voltar {
+      visibility: hidden;
+    }
+
+    .btn-voltar.show {
+      visibility: visible;
+    }
+
+    /* Result Screen */
+    .result-container {
+      max-width: 660px;
+      width: 100%;
+    }
+
+    .result-tag {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      padding: 8px 12px;
+      border-radius: 4px;
+      width: fit-content;
+    }
+
+    .result-titulo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem;
+      font-weight: 400;
+      margin-bottom: 12px;
+    }
+
+    .result-subtitulo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--text2);
+      margin-bottom: 24px;
+    }
+
+    .result-divisor {
+      height: 1px;
+      background: var(--border);
+      margin: 32px 0;
+    }
+
+    .result-desc {
+      line-height: 1.8;
+      margin-bottom: 40px;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .result-desc strong {
+      font-weight: 600;
+    }
+
+    .insights-box {
+      background: var(--surface2);
+      padding: 24px;
+      border-radius: 4px;
+      margin-bottom: 40px;
+    }
+
+    .insights-titulo {
+      font-weight: 600;
+      margin-bottom: 16px;
+      font-size: 0.95rem;
+    }
+
+    .insight {
+      margin-bottom: 12px;
+      padding-left: 16px;
+      position: relative;
+      line-height: 1.6;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .insight::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--gold);
+    }
+
+    .result-quote {
+      border-left: 2px solid var(--gold);
+      padding: 20px 0 20px 20px;
+      margin: 32px 0;
+      font-style: italic;
+      color: var(--text);
+      line-height: 1.8;
+      font-size: 0.95rem;
+    }
+
+    .desejo-box {
+      background: var(--surface2);
+      padding: 24px;
+      border-radius: 4px;
+      margin-bottom: 40px;
+      line-height: 1.8;
+      font-size: 0.95rem;
+    }
+
+    .proximo-passo-box {
+      border-left: 3px solid;
+      padding: 24px 0 24px 20px;
+      margin-bottom: 40px;
+      line-height: 1.8;
+      font-size: 0.95rem;
+    }
+
+    .cta-email {
+      background: var(--surface2);
+      padding: 24px;
+      border-radius: 4px;
+      margin-bottom: 40px;
+    }
+
+    .cta-email-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .cta-email input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--surface);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+    }
+
+    .cta-email input:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+
+    .result-nav {
+      display: flex;
+      gap: 16px;
+      margin-top: 40px;
+    }
+
+    .result-nav .btn {
+      flex: 1;
+    }
+
+    .success-message {
+      background: var(--green-dim);
+      border-left: 3px solid var(--green);
+      padding: 16px;
+      border-radius: 4px;
+      margin-bottom: 24px;
+      display: none;
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.75rem;
+      }
+
+      .pergunta-texto {
+        font-size: 1.25rem;
+      }
+
+      .btn {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+      }
+
+      .quiz-nav {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="progress-bar"></div>
+
+  <button class="theme-toggle" onclick="toggleTheme()" title="Alternar tema">
+    <span id="theme-icon">☀️</span>
+  </button>
+
+  <div class="screens-container">
+    <!-- INTRO -->
+    <div class="screen active" id="s-intro">
+      <div class="tag">Telma Abrahão • Certificação 4S</div>
+      <h1>Mapeamento de <em>Vocação e Propósito</em></h1>
+      <p class="intro-lead">As dores que você carregou por anos podem ter se tornado um dom...</p>
+      <div class="intro-note">
+        As dores que você carregou por anos podem ter se tornado um dom. Mas é preciso aprender a ler isso. Este quiz foi criado para mapear em qual estágio vocacional você se encontra e qual é o seu próximo passo.
+      </div>
+      <button class="btn btn-primary" onclick="goToGate()">Iniciar meu mapeamento →</button>
+      <p class="intro-footer">17 perguntas • ~5 minutos • resultado imediato</p>
+    </div>
+
+    <!-- GATE (EMAIL) -->
+    <div class="screen" id="s-gate">
+      <h1>Antes de começar...</h1>
+      <div class="gate-form">
+        <div class="form-group">
+          <label for="email">Seu e-mail</label>
+          <input type="email" id="email" placeholder="seu@email.com" onkeypress="if(event.key==='Enter') validateEmail()">
+          <div class="error" id="email-error">E-mail inválido</div>
+        </div>
+        <button class="btn btn-primary" onclick="validateEmail()">Continuar →</button>
+        <p class="form-note">Seus dados estão seguros. Sem spam.</p>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="screen" id="s-quiz">
+      <div class="quiz-header">
+        <div class="etapa-label" id="etapa-label"></div>
+        <div class="etapa-titulo" id="etapa-titulo"></div>
+        <div class="pergunta-numero" id="pergunta-numero"></div>
+        <div class="pergunta-texto" id="pergunta-texto"></div>
+        <div class="pergunta-nota" id="pergunta-nota"></div>
+      </div>
+      <div class="opcoes" id="opcoes"></div>
+      <div class="quiz-nav">
+        <button class="btn btn-secondary btn-voltar" onclick="goBack()">← Voltar</button>
+        <button class="btn btn-primary" id="btn-continuar" onclick="nextQuestion()" disabled>Continuar →</button>
+      </div>
+    </div>
+
+    <!-- RESULTADO -->
+    <div class="screen" id="s-result">
+      <div class="success-message" id="success-msg"></div>
+      <div id="result-content"></div>
+    </div>
+  </div>
+
+  <script>
+    const CONFIG = {
+      SUPABASE_URL:      'https://megtdgonrqzyskevkjej.supabase.co',
+      SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lZ3RkZ29ucnF6eXNrZXZramVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MjgzNDMsImV4cCI6MjA5NDEwNDM0M30.SgiE_H8mfDzC9wPAy1zLGANz-QsdoUZuw3eBlnfTtjY',
+      SHEETS_URL:        '',
+    };
+
+    const ETAPAS = [
+      { id: 1, titulo: "Antes de falar sobre o que você viveu, quero entender de onde você fala." },
+      { id: 2, titulo: "Toda vocação começa numa experiência. Quero entender a sua." },
+      { id: 3, titulo: "Quero entender como os padrões aparecem na sua vida hoje." },
+      { id: 4, titulo: "Agora quero entender para onde você quer ir." },
+      { id: 5, titulo: "Esta é a etapa central. Quero entender se o que você viveu tem o perfil de uma vocação." },
+      { id: 6, titulo: "Última etapa. Onde você está em relação a investir no seu desenvolvimento." },
+    ];
+
+    const QS = [
+      { id:"q1", etapa:1, t:"Em qual fase da vida você está agora?", multi:false, opts:[
+        {x:"Ainda estou me encontrando – buscando direção e identidade", p:"busca"},
+        {x:"Estou estabelecido(a), mas sentindo que falta algo", p:"virada"},
+        {x:"Estou num momento de transição – mudando de fase ou de caminho", p:"chamado"},
+        {x:"Estou construindo algo novo – profissional ou pessoalmente", p:"chamado"},
+        {x:"Estou bem, mas quero ir mais fundo em mim mesmo(a)", p:"chamado"},
+      ]},
+      { id:"q2", etapa:1, t:"Como você descreveria sua situação profissional hoje?", multi:false, opts:[
+        {x:"Trabalho na área da saúde, terapia ou cuidado de pessoas", p:"chamado"},
+        {x:"Trabalho com educação, desenvolvimento humano ou liderança", p:"chamado"},
+        {x:"Sou empreendedor(a) ou tenho meu próprio negócio", p:"chamado"},
+        {x:"Trabalho em outra área e estou pensando em mudar", p:"virada"},
+        {x:"Estou em transição de carreira", p:"busca"},
+        {x:"Ainda estou estudando ou definindo meu caminho", p:"busca"},
+      ]},
+      { id:"q3", etapa:1, t:"Qual é a sua faixa etária?", multi:false, opts:[
+        {x:"Até 25 anos", p:"busca"},
+        {x:"Entre 26 e 35 anos", p:"chamado"},
+        {x:"Entre 36 e 45 anos", p:"virada"},
+        {x:"Entre 46 e 55 anos", p:"virada"},
+        {x:"Acima de 55 anos", p:"virada"},
+      ]},
+      { id:"q4", etapa:1, t:"Qual é a sua renda mensal aproximada hoje?", multi:false, opts:[
+        {x:"Ainda não tenho renda própria ou estável", p:"busca"},
+        {x:"Até R$ 2.000", p:"busca"},
+        {x:"Entre R$ 2.001 e R$ 5.000", p:"virada"},
+        {x:"Entre R$ 5.001 e R$ 10.000", p:"chamado"},
+        {x:"Acima de R$ 10.000", p:"chamado"},
+      ]},
+      { id:"q5", etapa:2, t:"Quando você olha para a sua história, o que mais se repete?", multi:false, opts:[
+        {x:"Relacionamentos que seguem o mesmo roteiro – mesmo quando eu quero que seja diferente", p:"virada"},
+        {x:"A sensação de estar sempre no limite emocional, sem entender por quê", p:"virada"},
+        {x:"Bloqueios que me impedem de avançar, mesmo quando eu sei o que fazer", p:"busca"},
+        {x:"A dificuldade de me colocar em primeiro lugar sem culpa", p:"virada"},
+        {x:"Uma mistura de tudo isso – é difícil escolher só um", p:"chamado"},
+      ]},
+      { id:"q6", etapa:2, t:"O que você já tentou para entender e mudar esses padrões?", multi:true, nota:"Marque todas que se aplicam", opts:[
+        {x:"Terapia ou acompanhamento psicológico", p:"chamado"},
+        {x:"Cursos, formações ou leituras sobre autoconhecimento", p:"chamado"},
+        {x:"Coaching ou mentoria", p:"chamado"},
+        {x:"Práticas espirituais ou corporais", p:"virada"},
+        {x:"Ainda não tentei nada – esse é meu ponto de partida", p:"busca"},
+        {x:"Tentei várias coisas, mas sinto que ainda falta algo", p:"virada"},
+      ]},
+      { id:"q7", etapa:2, t:"O que você sente que ainda não encontrou nessas tentativas?", multi:false, opts:[
+        {x:"Profundidade real – ficou na superfície", p:"virada"},
+        {x:"Algo que fosse além do entendimento e chegasse na mudança de verdade", p:"virada"},
+        {x:"Um método que fizesse sentido para o que eu vivo", p:"chamado"},
+        {x:"Coragem para ir mais fundo", p:"busca"},
+        {x:"Ainda estou no processo – continuo buscando", p:"chamado"},
+      ]},
+      { id:"q8", etapa:3, t:"Qual dessas frases mais ressoa com o que você vive?", multi:false, opts:[
+        {x:"Eu reajo antes de pensar, e me arrependo depois", p:"virada"},
+        {x:"Eu sei o que preciso fazer, e não consigo me mover", p:"busca"},
+        {x:"Eu fujo antes de me machucar, e fico vazio(a) depois", p:"virada"},
+        {x:"Eu coloco todo mundo na frente e me perco no processo", p:"virada"},
+        {x:"Eu transito entre vários desses, dependendo do momento", p:"chamado"},
+      ]},
+      { id:"q9", etapa:3, t:"Em qual área da sua vida esses padrões aparecem com mais força?", multi:true, nota:"Marque todas que se aplicam", opts:[
+        {x:"Nos relacionamentos afetivos", p:"virada"},
+        {x:"Na relação com a família de origem", p:"virada"},
+        {x:"Na vida profissional e financeira", p:"chamado"},
+        {x:"Na autoestima e na forma como me vejo", p:"busca"},
+        {x:"No corpo – saúde, energia, presença", p:"virada"},
+      ]},
+      { id:"q10", etapa:4, t:"Qual mudança você mais deseja viver?", multi:true, nota:"Marque as 2 mais importantes para você", opts:[
+        {x:"Estar em paz com o meu passado, sem que ele me comande", p:"virada"},
+        {x:"Parar de repetir os mesmos padrões nos meus relacionamentos", p:"virada"},
+        {x:"Sentir que sou suficiente, sem precisar provar isso o tempo todo", p:"busca"},
+        {x:"Ter uma vida com mais sentido e direção clara", p:"chamado"},
+        {x:"Viver com mais leveza e menos culpa", p:"busca"},
+        {x:"Ajudar outras pessoas com o que aprendo sobre mim mesmo(a)", p:"chamado"},
+      ]},
+      { id:"q11", etapa:4, t:"Se você pudesse descrever como quer se sentir daqui a um ano, qual frase seria mais próxima?", multi:false, opts:[
+        {x:"Finalmente entendo por que faço o que faço – e tenho escolha sobre isso", p:"busca"},
+        {x:"Estou ajudando pessoas a entenderem o que eu aprendi sobre mim", p:"virada"},
+        {x:"Construí uma profissão que faz sentido com quem eu sou", p:"chamado"},
+        {x:"Me sinto inteiro(a) – sem peças faltando", p:"busca"},
+        {x:"Todas essas – quero tudo isso", p:"chamado"},
+      ]},
+      { id:"q12", etapa:5, t:"Quando alguém próximo passa por algo difícil emocionalmente, qual é sua reação natural?", multi:false, opts:[
+        {x:"Sinto profundamente junto – às vezes mais do que deveria", p:"virada"},
+        {x:"Quero entender o que está por trás – não fico só na superfície", p:"chamado"},
+        {x:"Tenho vontade de ajudar, mas não sei como fazer isso de forma útil", p:"busca"},
+        {x:"Fico desconfortável – ainda não sei lidar com a dor dos outros", p:"busca"},
+        {x:"Consigo estar presente e ajudar, sem me perder no processo", p:"chamado"},
+      ]},
+      { id:"q13", etapa:5, t:"Você já pensou em trabalhar com saúde emocional, trauma ou desenvolvimento humano?", multi:false, opts:[
+        {x:"Nunca pensei nisso – é a primeira vez que considero", p:"busca"},
+        {x:"Já pensei, mas achei que não teria o preparo necessário", p:"virada"},
+        {x:"Tenho curiosidade, mas nunca aprofundei", p:"chamado"},
+        {x:"Sim, é algo que quero muito – só falta o método certo", p:"chamado"},
+        {x:"Já trabalho nessa área e quero me aprofundar", p:"chamado"},
+      ]},
+      { id:"q14", etapa:5, t:"O que mais te aproximaria de transformar o que você viveu em profissão?", multi:true, nota:"Marque todas que se aplicam", opts:[
+        {x:"Entender meus próprios padrões com mais profundidade primeiro", p:"busca"},
+        {x:"Ter um método claro e aplicável – não só teoria", p:"chamado"},
+        {x:"Saber que posso fazer isso mesmo sem ser psicólogo(a)", p:"virada"},
+        {x:"Ver que existe demanda real e possibilidade de renda", p:"chamado"},
+        {x:"Ter o apoio de uma comunidade que caminha junto", p:"virada"},
+      ]},
+      { id:"q15", etapa:6, t:"Como você se sente em relação a investir em uma formação que transforme sua vida e sua carreira?", multi:false, opts:[
+        {x:"Ainda não estou no momento financeiro para isso", p:"busca"},
+        {x:"Estou aberto(a), mas preciso sentir que vale antes de decidir", p:"virada"},
+        {x:"Estou pronto(a) – só preciso encontrar o que faz sentido para mim", p:"chamado"},
+        {x:"Já invisto regularmente e estou buscando o próximo passo", p:"chamado"},
+      ]},
+      { id:"q16", etapa:6, t:"Se encontrasse uma formação profunda, com método sólido e comunidade de suporte, qual investimento faria sentido para você?", multi:false, opts:[
+        {x:"Até R$ 800", p:"busca"},
+        {x:"Entre R$ 801 e R$ 1.500", p:"virada"},
+        {x:"Entre R$ 1.501 e R$ 2.500", p:"chamado"},
+        {x:"Entre R$ 2.501 e R$ 4.000", p:"chamado"},
+        {x:"Acima de R$ 4.000 – se eu sentir que realmente vale", p:"chamado"},
+      ]},
+      { id:"q17", etapa:6, t:"O que você espera descobrir sobre si mesmo(a) depois deste mapeamento?", multi:false, opts:[
+        {x:"Se tenho vocação para trabalhar com outras pessoas", p:"chamado"},
+        {x:"De onde vêm os padrões que me prendem", p:"virada"},
+        {x:"Se o que vivi pode realmente se tornar algo útil para o mundo", p:"virada"},
+        {x:"Qual é meu próximo passo real", p:"busca"},
+        {x:"Tudo isso – quero ter clareza completa", p:"chamado"},
+      ]},
+    ];
+
+    const PERFIS = {
+      busca: {
+        estagio:  "Estágio 1",
+        cor:      "var(--busca)",
+        cor_hex:  "#7098c9",
+        titulo:   "Você está em busca de si mesma.",
+        sub:      "E isso já é mais do que a maioria das pessoas faz em uma vida inteira.",
+        desc: `Você chegou até aqui carregando perguntas que ninguém ainda respondeu de forma satisfatória.<br><br>
+Por que você reage assim? Por que certos padrões se repetem mesmo quando você quer que seja diferente? Por que existe uma camada que você sente mas ainda não consegue nomear?<br><br>
+Você já tentou entender. Já leu, já buscou, já quis mudar. E algo em você sabe que a resposta está mais fundo do que chegou até agora.<br><br>
+<strong>Isso não é fraqueza. É o começo de uma percepção que a maioria das pessoas nunca tem.</strong>`,
+        insights: [
+          "Você sente que existe uma camada ainda não tocada – e está certa",
+          "Sua busca não é exagero – é um sistema nervoso pedindo para ser compreendido",
+          "O que você chama de padrão tem uma origem, e ela pode ser lida",
+          "Entender não é suficiente para mudar. Existe um nível mais profundo."
+        ],
+        bridge: "A pessoa que para e se pergunta 'por que sou assim?' já está à frente de quem nunca parou. Você está nesse lugar. E o próximo passo não é mais esforço – é a direção certa.",
+        desejo: `Existe uma razão pela qual certos padrões resistem a tudo que você já tentou. Não é falta de vontade. Não é falta de consciência.<br><br>
+É que o comportamento não mora onde você tem procurado.<br><br>
+Quando você entender onde ele realmente mora – e como ele foi formado – algo vai se mover dentro de você de um jeito que não tem volta.<br><br>
+<strong>Essa percepção é o que muda tudo. E ela está mais perto do que você imagina.</strong>`,
+        proximo_passo: "Você chegou até aqui porque algo dentro de você não aceita mais não saber. Nos dias 13 e 14 de junho, na Imersão O Mapa do Trauma, esse algo vai finalmente ter uma resposta. Não uma explicação. Uma experiência. Venha com tudo que você ainda não entende sobre si mesma. É exatamente isso que vai ser visto.",
+      },
+      virada: {
+        estagio:  "Estágio 2",
+        cor:      "var(--virada)",
+        cor_hex:  "#c9a96e",
+        titulo:   "Você está numa virada.",
+        sub:      "Você já viu o suficiente para saber que existe mais. Agora quer saber o que fazer com isso.",
+        desc: `Você não está no começo. Você já caminhou. Já entendeu coisas sobre si mesma que a maioria das pessoas nunca vai entender.<br><br>
+E mesmo assim algo ainda não se encaixou completamente. Existe uma distância entre o que você entende e o que você consegue mudar. Entre o que você sabe e o que você vive.<br><br>
+Essa distância não é sinal de que você falhou. É sinal de que você chegou no limite do que a mente consegue fazer sozinha.<br><br>
+<strong>Você está exatamente no ponto em que a jornada real começa.</strong>`,
+        insights: [
+          "Você entende o padrão, mas entender não é suficiente para mudar",
+          "Existe uma camada mais profunda que a consciência não alcança sozinha",
+          "O que você viveu não foi em vão – foi uma formação",
+          "Você está pronta para ir mais fundo do que já foi"
+        ],
+        bridge: "A distância que você sente entre entender e mudar não é falha sua. É a distância exata entre o nível onde você tem trabalhado e o nível onde o comportamento realmente é gerado.",
+        desejo: `Existe algo que acontece quando uma pessoa finalmente acessa o nível onde o padrão é gerado.<br><br>
+Não é mais um insight. Não é mais uma ressignificação. É uma percepção que muda a forma como você enxerga tudo – a si mesma, as pessoas ao seu redor, os comportamentos que antes pareciam sem explicação.<br><br>
+E existe mais uma coisa que acontece nesse momento: a pessoa percebe que essa visão não serve só para ela.<br><br>
+<strong>O que você carregou por anos pode ser exatamente o que vai iluminar o caminho de outras pessoas.</strong>`,
+        proximo_passo: "Você já sabe que existe uma camada que ainda não foi tocada. Nos dias 13 e 14 de junho, na Imersão O Mapa do Trauma, você vai chegar nessa camada pela primeira vez. E quando isso acontece, algo muda de dentro para fora de um jeito que não tem volta.",
+      },
+      chamado: {
+        estagio:  "Estágio 3",
+        cor:      "var(--chamado)",
+        cor_hex:  "#7eb89a",
+        titulo:   "Você sente um chamado.",
+        sub:      "Algo dentro de você já sabe que o que viveu não pode ficar só em você.",
+        desc: `Você carrega uma história. E já há algum tempo – talvez sem ter palavras para isso – você sente que essa história tem um propósito além de você mesma.<br><br>
+Não é sobre ter tudo resolvido. Não é sobre ser perfeita para poder ajudar. É sobre reconhecer que o que você atravessou te deu uma capacidade de leitura que a maioria das pessoas não tem.<br><br>
+Você sente o outro de dentro. Reconhece a dor antes de ela ser nomeada. Quer ajudar – não porque aprendeu numa sala de aula, mas porque viveu.<br><br>
+<strong>Esse é um dos dons mais raros que existem. E ele precisa de um método à altura.</strong>`,
+        insights: [
+          "Sua história não é um obstáculo para ajudar – é a sua maior credencial",
+          "Empatia sem método esgota. Com método, transforma.",
+          "O mundo tem uma escassez enorme de pessoas que sabem trabalhar no nível profundo",
+          "O que você sente como chamado tem uma forma concreta de se tornar real"
+        ],
+        bridge: "Você não precisa esperar estar pronta. Você precisa de um método que esteja à altura do que você carrega. Porque o que você viveu já é mais formação do que qualquer diploma pode oferecer.",
+        desejo: `Existe uma diferença entre querer ajudar e saber como ajudar de verdade.<br><br>
+Você já tem o primeiro. E quando isso se encontra com um método sólido, o resultado não é só uma nova profissão.<br><br>
+É a sensação de que finalmente tudo faz sentido. Que o que você viveu tinha um destino. Que a sua história era uma preparação.<br><br>
+<strong>Esse encontro entre o que você carrega e o que você aprende é o que transforma terapeutas em referências.</strong>`,
+        proximo_passo: "O que você sente como chamado precisa de uma estrutura que sustente. Nos dias 13 e 14 de junho, na Imersão O Mapa do Trauma, você vai ter acesso ao método que transforma o que você já sente em algo que você pode usar – com clareza, com profundidade, com resultado real.",
+      }
+    };
+
+    let currentQuestion = 0;
+    let email = '';
+    let scores = { busca: 0, virada: 0, chamado: 0 };
+    let selectedAnswers = {};
+    let allAnswersText = {};
+
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
+      updateToggleIcon();
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      updateToggleIcon();
+    }
+
+    function updateToggleIcon() {
+      const theme = document.documentElement.getAttribute('data-theme');
+      const icon = document.getElementById('theme-icon');
+      icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+      updateProgressBar();
+    }
+
+    function goToGate() {
+      showScreen('s-gate');
+    }
+
+    function validateEmail() {
+      const emailInput = document.getElementById('email');
+      const emailError = document.getElementById('email-error');
+      const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!regex.test(emailInput.value)) {
+        emailError.classList.add('show');
+        return;
+      }
+
+      email = emailInput.value;
+      emailError.classList.remove('show');
+      currentQuestion = 0;
+      scores = { busca: 0, virada: 0, chamado: 0 };
+      selectedAnswers = {};
+      allAnswersText = {};
+      loadQuestion();
+      showScreen('s-quiz');
+    }
+
+    function loadQuestion() {
+      const q = QS[currentQuestion];
+      const etapa = ETAPAS.find(e => e.id === q.etapa);
+
+      document.getElementById('etapa-label').textContent = `Etapa ${q.etapa} de 6`;
+      document.getElementById('etapa-titulo').textContent = etapa.titulo;
+      document.getElementById('pergunta-numero').textContent = `Pergunta ${currentQuestion + 1}`;
+      document.getElementById('pergunta-texto').textContent = q.t;
+      document.getElementById('pergunta-nota').textContent = q.nota || '';
+
+      const opcoesContainer = document.getElementById('opcoes');
+      opcoesContainer.innerHTML = '';
+
+      q.opts.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'opcao';
+        btn.textContent = opt.x;
+        btn.onclick = () => selectOption(idx, opt, q);
+
+        if (selectedAnswers[q.id] && selectedAnswers[q.id].includes(idx)) {
+          btn.classList.add('selected');
+        }
+
+        opcoesContainer.appendChild(btn);
+      });
+
+      document.querySelector('.btn-voltar').classList.toggle('show', currentQuestion > 0);
+      updateContinueButton();
+      updateProgressBar();
+    }
+
+    function selectOption(idx, opt, q) {
+      if (q.multi) {
+        if (!selectedAnswers[q.id]) selectedAnswers[q.id] = [];
+        if (selectedAnswers[q.id].includes(idx)) {
+          selectedAnswers[q.id] = selectedAnswers[q.id].filter(i => i !== idx);
+        } else {
+          selectedAnswers[q.id].push(idx);
+        }
+      } else {
+        selectedAnswers[q.id] = [idx];
+      }
+
+      allAnswersText[q.id] = q.multi
+        ? q.opts.filter((_, i) => selectedAnswers[q.id].includes(i)).map(o => o.x).join('; ')
+        : opt.x;
+
+      if (q.multi) {
+        document.querySelectorAll('.opcao').forEach((btn, i) => {
+          btn.classList.toggle('selected', selectedAnswers[q.id].includes(i));
+        });
+        updateContinueButton();
+      } else {
+        document.querySelectorAll('.opcao').forEach((btn, i) => {
+          btn.classList.toggle('selected', i === idx);
+        });
+        scores[opt.p]++;
+
+        setTimeout(() => {
+          if (currentQuestion < QS.length - 1) {
+            nextQuestion();
+          } else {
+            updateContinueButton();
+          }
+        }, 320);
+      }
+    }
+
+    function updateContinueButton() {
+      const q = QS[currentQuestion];
+      const hasSelection = selectedAnswers[q.id] && selectedAnswers[q.id].length > 0;
+      document.getElementById('btn-continuar').disabled = !hasSelection;
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < QS.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function goBack() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        loadQuestion();
+      }
+    }
+
+    function updateProgressBar() {
+      const total = QS.length;
+      const percent = ((currentQuestion + 1) / total) * 100;
+      document.getElementById('progress-bar').style.width = percent + '%';
+    }
+
+    function showResult() {
+      const dominant = Object.entries(scores).sort((a,b) => b[1]-a[1])[0][0];
+      const perfil = PERFIS[dominant];
+
+      let html = `
+        <div class="result-tag" style="background: ${perfil.cor_hex}20; color: ${perfil.cor_hex}">
+          ${perfil.estagio}
+        </div>
+        <h1 class="result-titulo">${perfil.titulo}</h1>
+        <p class="result-subtitulo">${perfil.sub}</p>
+        <div class="result-divisor"></div>
+        <div class="result-desc">${perfil.desc}</div>
+
+        <div class="insights-box">
+          <div class="insights-titulo">O que seu perfil revela:</div>
+          ${perfil.insights.map(i => `<div class="insight">${i}</div>`).join('')}
+        </div>
+
+        <div class="result-quote">"${perfil.bridge}"</div>
+
+        <div class="desejo-box">
+          <strong>O que está disponível para você:</strong><br><br>
+          ${perfil.desejo}
+        </div>
+
+        <div class="proximo-passo-box" style="border-color: ${perfil.cor_hex}">
+          <strong>Seu próximo passo:</strong><br><br>
+          ${perfil.proximo_passo}
+        </div>
+
+        <div class="cta-email">
+          <div class="cta-email-label">Confirmar seu e-mail:</div>
+          <input type="email" id="result-email" value="${email}" readonly>
+          <button class="btn btn-primary" style="width: 100%" onclick="submitLead('${dominant}')">
+            Enviar minha análise →
+          </button>
+        </div>
+
+        <div class="success-message" id="result-success">
+          ✓ Análise enviada com sucesso! Você receberá um e-mail com os próximos passos.
+        </div>
+      `;
+
+      document.getElementById('result-content').innerHTML = html;
+      showScreen('s-result');
+    }
+
+    async function submitLead(perfil) {
+      const payload = {
+        email,
+        perfil_dominante: perfil,
+        score_busca:    scores.busca,
+        score_virada:   scores.virada,
+        score_chamado:  scores.chamado,
+        q1_fase_vida:              allAnswersText['q1'] || '',
+        q2_situacao_profissional:  allAnswersText['q2'] || '',
+        q3_faixa_etaria:           allAnswersText['q3'] || '',
+        q4_renda:                  allAnswersText['q4'] || '',
+        q5_historico:              allAnswersText['q5'] || '',
+        q6_ja_tentou:              allAnswersText['q6'] || '',
+        q7_o_que_faltou:           allAnswersText['q7'] || '',
+        q8_frase_ressoa:           allAnswersText['q8'] || '',
+        q9_area_desafio:           allAnswersText['q9'] || '',
+        q10_mudanca_desejada:      allAnswersText['q10'] || '',
+        q11_como_quer_se_sentir:   allAnswersText['q11'] || '',
+        q12_reacao_emocional:      allAnswersText['q12'] || '',
+        q13_interesse_profissional:allAnswersText['q13'] || '',
+        q14_o_que_aproximaria:     allAnswersText['q14'] || '',
+        q15_momento_investimento:  allAnswersText['q15'] || '',
+        q16_valor_formacao:        allAnswersText['q16'] || '',
+        q17_expectativa:           allAnswersText['q17'] || '',
+      };
+
+      try {
+        const res = await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/vocacao_respostas`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': CONFIG.SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${CONFIG.SUPABASE_ANON_KEY}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok || res.status === 201) {
+          document.getElementById('result-success').classList.add('show');
+        }
+
+        if (CONFIG.SHEETS_URL) {
+          await fetch(CONFIG.SHEETS_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify({ timestamp: new Date().toISOString(), ...payload })
+          }).catch(() => {});
+        }
+      } catch (err) {
+        console.error('Erro ao enviar:', err);
+      }
+    }
+
+    initTheme();
+  </script>
+</body>
+</html>
