@@ -89,8 +89,9 @@ export default async function handler(req, res) {
       try {
         // Converter timestamp para fuso horário do Brasil (UTC-3)
         const now = new Date();
-        const brasilTime = new Date(now.getTime() - (3 * 60 * 60 * 1000));
-        const timestamp = brasilTime.toISOString().replace('Z', '') + '-03:00';
+        const offset = 3 * 60 * 60 * 1000; // 3 horas em ms
+        const brasilTime = new Date(now.getTime() - offset);
+        const timestamp = brasilTime.toISOString().slice(0, -5) + '-03:00';
 
         await fetch(process.env.N8N_WEBHOOK, {
           method: 'POST',
