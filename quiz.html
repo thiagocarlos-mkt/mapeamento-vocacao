@@ -1015,7 +1015,15 @@ Você já tem o primeiro. E quando isso se encontra com um método sólido, o re
     function updateContinueButton() {
       const q = QS[currentQuestion];
       const hasSelection = selectedAnswers[q.id] && selectedAnswers[q.id].length > 0;
-      document.getElementById('btn-continuar').disabled = !hasSelection;
+      const btnContinuar = document.getElementById('btn-continuar');
+      btnContinuar.disabled = !hasSelection;
+
+      // Alterar texto do botão na última pergunta
+      if (currentQuestion === QS.length - 1) {
+        btnContinuar.textContent = 'Enviar respostas →';
+      } else {
+        btnContinuar.textContent = 'Continuar →';
+      }
     }
 
     function nextQuestion() {
@@ -1023,7 +1031,9 @@ Você já tem o primeiro. E quando isso se encontra com um método sólido, o re
         currentQuestion++;
         loadQuestion();
       } else {
-        showResult();
+        // Última pergunta - calcular perfil dominante e enviar
+        const dominant = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+        submitLead(dominant);
       }
     }
 
@@ -1070,10 +1080,9 @@ Você já tem o primeiro. E quando isso se encontra com um método sólido, o re
           ${perfil.proximo_passo}
         </div>
 
-        <div class="cta-email">
-          <button class="btn btn-primary" style="width: 100%" onclick="submitLead('${dominant}')">
-            Enviar minha análise →
-          </button>
+        <div class="result-quote" style="text-align: center; margin-top: 60px; font-size: 1.1rem; color: var(--gold); border: none; border-top: 2px solid var(--gold); border-bottom: 2px solid var(--gold); padding: 32px 20px;">
+          <strong>Nos vemos na Imersão O Mapa do Trauma</strong><br>
+          <span style="font-size: 0.9rem; color: var(--text2); margin-top: 8px; display: block;">13 e 14 de junho</span>
         </div>
 
         <div class="success-message" id="result-success">
