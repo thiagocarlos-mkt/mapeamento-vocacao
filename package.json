@@ -4,8 +4,7 @@
   "description": "Sistema de quiz vocacional para Telma Abrahão",
   "type": "module",
   "scripts": {
-    "dev": "vercel dev",
-    "build": "vercel build"
+    "dev": "vercel dev"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0"
