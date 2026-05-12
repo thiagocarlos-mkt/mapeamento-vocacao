@@ -77,7 +77,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       padding: 24px;
       min-height: 100vh;
     }
@@ -126,8 +125,20 @@
       display: none;
       flex-direction: column;
       min-height: 100vh;
-      justify-content: center;
       animation: fadeUp 0.42s ease forwards;
+    }
+
+    #s-intro,
+    #s-gate,
+    #s-quiz {
+      justify-content: center;
+    }
+
+    #s-result {
+      min-height: auto;
+      justify-content: flex-start;
+      padding-top: 40px;
+      padding-bottom: 40px;
     }
 
     .screen.active {
@@ -1204,6 +1215,12 @@ Você já tem o primeiro. E quando isso se encontra com um método sólido, o re
         <div class="result-quote" style="text-align: center; margin-top: 60px; font-size: 1.1rem; color: var(--gold); border: none; border-top: 2px solid var(--gold); border-bottom: 2px solid var(--gold); padding: 32px 20px;">
           <strong>Nos vemos na Imersão O Mapa do Trauma</strong><br>
           <span style="font-size: 0.9rem; color: var(--text2); margin-top: 8px; display: block;">13 e 14 de junho</span>
+        </div>
+
+        <div class="cta-email">
+          <button class="btn btn-primary" style="width: 100%" onclick="submitLead('${dominant}')">
+            Enviar minha análise →
+          </button>
         </div>
 
         <div class="success-message" id="result-success">
