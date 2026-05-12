@@ -87,11 +87,16 @@ export default async function handler(req, res) {
     // Enviar webhook N8n
     if (process.env.N8N_WEBHOOK) {
       try {
+        // Converter timestamp para fuso horário do Brasil (UTC-3)
+        const now = new Date();
+        const brasilTime = new Date(now.getTime() - (3 * 60 * 60 * 1000));
+        const timestamp = brasilTime.toISOString().replace('Z', '') + '-03:00';
+
         await fetch(process.env.N8N_WEBHOOK, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            timestamp: new Date().toISOString(),
+            timestamp,
             nome,
             telefone,
             email,
