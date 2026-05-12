@@ -1146,7 +1146,8 @@ Você já tem o primeiro. E quando isso se encontra com um método sólido, o re
         const result = await res.json();
 
         if (res.ok || res.status === 201) {
-          document.getElementById('result-success').classList.add('show');
+          // Exibir página de análise
+          showResult();
         } else {
           console.error('Erro ao salvar:', result.error);
         }
