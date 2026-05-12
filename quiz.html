@@ -1088,6 +1088,9 @@ Você já tem o primeiro. E quando isso se encontra com um método sólido, o re
     }
 
     async function submitLead(perfil) {
+      // Buscar dados completos do perfil selecionado
+      const perfilData = PERFIS[perfil];
+
       const payload = {
         nome,
         telefone,
@@ -1113,6 +1116,14 @@ Você já tem o primeiro. E quando isso se encontra com um método sólido, o re
         q15_momento_investimento:  allAnswersText['q15'] || '',
         q16_valor_formacao:        allAnswersText['q16'] || '',
         q17_expectativa:           allAnswersText['q17'] || '',
+        // Dados da análise final
+        resultado_titulo:          perfilData?.titulo || '',
+        resultado_subtitulo:       perfilData?.sub || '',
+        resultado_descricao:       perfilData?.desc || '',
+        resultado_insights:        JSON.stringify(perfilData?.insights || []),
+        resultado_bridge:          perfilData?.bridge || '',
+        resultado_desejo:          perfilData?.desejo || '',
+        resultado_proximo_passo:   perfilData?.proximo_passo || '',
       };
 
       try {
