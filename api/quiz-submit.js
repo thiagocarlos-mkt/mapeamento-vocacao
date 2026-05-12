@@ -87,11 +87,10 @@ export default async function handler(req, res) {
     // Enviar webhook N8n
     if (process.env.N8N_WEBHOOK) {
       try {
-        // Converter timestamp para fuso horário do Brasil (UTC-3)
+        // Timestamp em formato Brasil (UTC-3)
         const now = new Date();
-        const offset = 3 * 60 * 60 * 1000; // 3 horas em ms
-        const brasilTime = new Date(now.getTime() - offset);
-        const timestamp = brasilTime.toISOString().slice(0, -5) + '-03:00';
+        const utcDate = new Date(now.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }));
+        const timestamp = utcDate.toISOString().split('Z')[0] + '-03:00';
 
         await fetch(process.env.N8N_WEBHOOK, {
           method: 'POST',
