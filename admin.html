@@ -763,6 +763,29 @@
       color: var(--text);
     }
 
+    .top-answer-highlight {
+      background: var(--gold-dim);
+      border: 1px solid var(--gold);
+      border-radius: 4px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+
+    .top-answer-label {
+      color: var(--text2);
+      font-weight: 500;
+    }
+
+    .top-answer-value {
+      color: var(--gold);
+      font-weight: 600;
+      flex: 1;
+    }
+
     @media (max-width: 1000px) {
       .charts-grid {
         grid-template-columns: 1fr;
@@ -1085,9 +1108,24 @@
 
         const maxCount = Math.max(...Object.values(respostasCount), 1);
 
+        // Encontrar resposta mais votada
+        let topAnswerIdx = 0;
+        let topAnswerCount = 0;
+        Object.entries(respostasCount).forEach(([idx, count]) => {
+          if (count > topAnswerCount) {
+            topAnswerCount = count;
+            topAnswerIdx = parseInt(idx);
+          }
+        });
+        const topAnswer = qData.respostas[topAnswerIdx];
+
         html += `
           <div class="question-card">
             <div class="question-title">${qData.titulo}</div>
+            <div class="top-answer-highlight">
+              <span class="top-answer-label">Mais votado:</span>
+              <span class="top-answer-value">${topAnswer} (${topAnswerCount} ${topAnswerCount === 1 ? 'resposta' : 'respostas'})</span>
+            </div>
             <div class="question-bars">
         `;
 
