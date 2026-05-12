@@ -647,11 +647,9 @@
   </div>
 
   <script>
+    // Credenciais removidas - agora usando API segura (/api/quiz-submit)
     const CONFIG = {
-      SUPABASE_URL:      'https://megtdgonrqzyskevkjej.supabase.co',
-      SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lZ3RkZ29ucnF6eXNrZXZramVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MjgzNDMsImV4cCI6MjA5NDEwNDM0M30.SgiE_H8mfDzC9wPAy1zLGANz-QsdoUZuw3eBlnfTtjY',
-      SHEETS_URL:        '',
-      N8N_WEBHOOK:       'https://n8n.srv1271188.hstgr.cloud/webhook/013f00cf-44f2-45a7-b523-788ebe26c584',
+      API_ENDPOINT: '/api/quiz-submit',
     };
 
     const ETAPAS = [
@@ -1089,25 +1087,6 @@ Você já tem o primeiro. E quando isso se encontra com um método sólido, o re
       showScreen('s-result');
     }
 
-    async function sendWebhook(payload) {
-      if (!CONFIG.N8N_WEBHOOK) return;
-
-      try {
-        await fetch(CONFIG.N8N_WEBHOOK, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            timestamp: new Date().toISOString(),
-            ...payload
-          })
-        }).catch(() => {});
-      } catch (err) {
-        console.error('Erro ao enviar webhook:', err);
-      }
-    }
-
     async function submitLead(perfil) {
       const payload = {
         nome,
@@ -1137,29 +1116,21 @@ Você já tem o primeiro. E quando isso se encontra com um método sólido, o re
       };
 
       try {
-        const res = await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/vocacao_respostas`, {
+        // Chamar API segura (credenciais ficam no servidor)
+        const res = await fetch(CONFIG.API_ENDPOINT, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'apikey': CONFIG.SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${CONFIG.SUPABASE_ANON_KEY}`,
-            'Prefer': 'return=minimal'
           },
           body: JSON.stringify(payload)
         });
 
+        const result = await res.json();
+
         if (res.ok || res.status === 201) {
           document.getElementById('result-success').classList.add('show');
-        }
-
-        await sendWebhook(payload);
-
-        if (CONFIG.SHEETS_URL) {
-          await fetch(CONFIG.SHEETS_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify({ timestamp: new Date().toISOString(), ...payload })
-          }).catch(() => {});
+        } else {
+          console.error('Erro ao salvar:', result.error);
         }
       } catch (err) {
         console.error('Erro ao enviar:', err);
