@@ -1062,6 +1062,8 @@ Você já tem o primeiro. E quando isso se encontra com um método sólido, o re
       const dominant = Object.entries(scores).sort((a,b) => b[1]-a[1])[0][0];
       const perfil = PERFIS[dominant];
 
+      window.scrollTo(0, 0);
+
       let html = `
         <div class="result-tag" style="background: ${perfil.cor_hex}20; color: ${perfil.cor_hex}">
           ${perfil.estagio}
