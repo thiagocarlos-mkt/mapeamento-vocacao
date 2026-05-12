@@ -599,16 +599,26 @@
       <p class="intro-footer">17 perguntas • ~5 minutos • resultado imediato</p>
     </div>
 
-    <!-- GATE (EMAIL) -->
+    <!-- GATE (NOME, TELEFONE, EMAIL) -->
     <div class="screen" id="s-gate">
       <h1>Antes de começar...</h1>
       <div class="gate-form">
         <div class="form-group">
+          <label for="nome">Seu nome</label>
+          <input type="text" id="nome" placeholder="Seu nome completo">
+          <div class="error" id="nome-error">Nome obrigatório</div>
+        </div>
+        <div class="form-group">
+          <label for="telefone">Seu telefone</label>
+          <input type="tel" id="telefone" placeholder="(11) 99999-9999">
+          <div class="error" id="telefone-error">Telefone inválido</div>
+        </div>
+        <div class="form-group">
           <label for="email">Seu e-mail</label>
-          <input type="email" id="email" placeholder="seu@email.com" onkeypress="if(event.key==='Enter') validateEmail()">
+          <input type="email" id="email" placeholder="seu@email.com" onkeypress="if(event.key==='Enter') validateForm()">
           <div class="error" id="email-error">E-mail inválido</div>
         </div>
-        <button class="btn btn-primary" onclick="validateEmail()">Continuar →</button>
+        <button class="btn btn-primary" onclick="validateForm()">Continuar →</button>
         <p class="form-note">Seus dados estão seguros. Sem spam.</p>
       </div>
     </div>
@@ -849,6 +859,8 @@ Você já tem o primeiro. E quando isso se encontra com um método sólido, o re
     };
 
     let currentQuestion = 0;
+    let nome = '';
+    let telefone = '';
     let email = '';
     let scores = { busca: 0, virada: 0, chamado: 0 };
     let selectedAnswers = {};
@@ -884,18 +896,47 @@ Você já tem o primeiro. E quando isso se encontra com um método sólido, o re
       showScreen('s-gate');
     }
 
-    function validateEmail() {
+    function validateForm() {
+      const nomeInput = document.getElementById('nome');
+      const nomeError = document.getElementById('nome-error');
+      const telefoneInput = document.getElementById('telefone');
+      const telefoneError = document.getElementById('telefone-error');
       const emailInput = document.getElementById('email');
       const emailError = document.getElementById('email-error');
-      const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-      if (!regex.test(emailInput.value)) {
-        emailError.classList.add('show');
-        return;
+      let isValid = true;
+
+      // Validar nome
+      if (!nomeInput.value.trim()) {
+        nomeError.classList.add('show');
+        isValid = false;
+      } else {
+        nomeError.classList.remove('show');
       }
 
+      // Validar telefone (básico)
+      const phoneRegex = /^[\d\s\-\(\)]{10,}$/;
+      if (!phoneRegex.test(telefoneInput.value.replace(/\D/g, ''))) {
+        telefoneError.classList.add('show');
+        isValid = false;
+      } else {
+        telefoneError.classList.remove('show');
+      }
+
+      // Validar email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(emailInput.value)) {
+        emailError.classList.add('show');
+        isValid = false;
+      } else {
+        emailError.classList.remove('show');
+      }
+
+      if (!isValid) return;
+
+      nome = nomeInput.value.trim();
+      telefone = telefoneInput.value.trim();
       email = emailInput.value;
-      emailError.classList.remove('show');
       currentQuestion = 0;
       scores = { busca: 0, virada: 0, chamado: 0 };
       selectedAnswers = {};
@@ -1049,6 +1090,8 @@ Você já tem o primeiro. E quando isso se encontra com um método sólido, o re
 
     async function submitLead(perfil) {
       const payload = {
+        nome,
+        telefone,
         email,
         perfil_dominante: perfil,
         score_busca:    scores.busca,

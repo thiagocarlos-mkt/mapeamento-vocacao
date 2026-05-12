@@ -4,6 +4,8 @@
 CREATE TABLE IF NOT EXISTS vocacao_respostas (
   id                         uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   created_at                 timestamptz DEFAULT now(),
+  nome                       text,
+  telefone                   text,
   email                      text NOT NULL,
   perfil_dominante           text CHECK (perfil_dominante IN ('busca', 'virada', 'chamado')),
   score_busca                integer DEFAULT 0,
