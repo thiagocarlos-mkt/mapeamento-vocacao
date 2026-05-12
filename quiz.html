@@ -273,6 +273,25 @@
       box-shadow: 0 0 0 3px var(--gold-dim2);
     }
 
+    .form-group select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--surface2);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px var(--gold-dim2);
+    }
+
     .error {
       color: #e57373;
       font-size: 0.85rem;
@@ -617,6 +636,28 @@
           <div class="error" id="nome-error">Nome obrigatório</div>
         </div>
         <div class="form-group">
+          <label for="pais">Qual é o seu país?</label>
+          <select id="pais" onchange="updateDDI()">
+            <option value="">Selecionar país...</option>
+            <option value="+55">🇧🇷 Brasil</option>
+            <option value="+1">🇺🇸 Estados Unidos</option>
+            <option value="+1">🇨🇦 Canadá</option>
+            <option value="+351">🇵🇹 Portugal</option>
+            <option value="+44">🇬🇧 Reino Unido</option>
+            <option value="+34">🇪🇸 Espanha</option>
+            <option value="+33">🇫🇷 França</option>
+            <option value="+49">🇩🇪 Alemanha</option>
+            <option value="+39">🇮🇹 Itália</option>
+            <option value="+61">🇦🇺 Austrália</option>
+            <option value="custom">🌍 Outro país (digite DDI)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="ddi">Código do país (DDI)</label>
+          <input type="text" id="ddi" placeholder="+55" value="">
+          <div class="error" id="ddi-error">DDI inválido (use formato +XX)</div>
+        </div>
+        <div class="form-group">
           <label for="telefone">Seu telefone</label>
           <input type="tel" id="telefone" placeholder="(11) 99999-9999">
           <div class="error" id="telefone-error">Telefone inválido</div>
@@ -867,6 +908,7 @@ Você já tem o primeiro. E quando isso se encontra com um método sólido, o re
 
     let currentQuestion = 0;
     let nome = '';
+    let ddi = '';
     let telefone = '';
     let email = '';
     let scores = { busca: 0, virada: 0, chamado: 0 };
@@ -903,9 +945,24 @@ Você já tem o primeiro. E quando isso se encontra com um método sólido, o re
       showScreen('s-gate');
     }
 
+    function updateDDI() {
+      const paisSelect = document.getElementById('pais');
+      const ddiInput = document.getElementById('ddi');
+      const selectedValue = paisSelect.value;
+
+      if (selectedValue && selectedValue !== 'custom') {
+        ddiInput.value = selectedValue;
+      } else if (selectedValue === 'custom') {
+        ddiInput.value = '';
+        ddiInput.focus();
+      }
+    }
+
     function validateForm() {
       const nomeInput = document.getElementById('nome');
       const nomeError = document.getElementById('nome-error');
+      const ddiInput = document.getElementById('ddi');
+      const ddiError = document.getElementById('ddi-error');
       const telefoneInput = document.getElementById('telefone');
       const telefoneError = document.getElementById('telefone-error');
       const emailInput = document.getElementById('email');
@@ -919,6 +976,15 @@ Você já tem o primeiro. E quando isso se encontra com um método sólido, o re
         isValid = false;
       } else {
         nomeError.classList.remove('show');
+      }
+
+      // Validar DDI
+      const ddiRegex = /^\+\d{1,3}$/;
+      if (!ddiRegex.test(ddiInput.value)) {
+        ddiError.classList.add('show');
+        isValid = false;
+      } else {
+        ddiError.classList.remove('show');
       }
 
       // Validar telefone (básico)
@@ -942,7 +1008,8 @@ Você já tem o primeiro. E quando isso se encontra com um método sólido, o re
       if (!isValid) return;
 
       nome = nomeInput.value.trim();
-      telefone = telefoneInput.value.trim();
+      ddi = ddiInput.value.trim();
+      telefone = ddiInput.value.trim() + ' ' + telefoneInput.value.trim();
       email = emailInput.value;
       currentQuestion = 0;
       scores = { busca: 0, virada: 0, chamado: 0 };
