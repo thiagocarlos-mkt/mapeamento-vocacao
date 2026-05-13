@@ -89,8 +89,9 @@ export default async function handler(req, res) {
       try {
         // Timestamp em formato Brasil (UTC-3)
         const now = new Date();
-        const utcDate = new Date(now.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }));
-        const timestamp = utcDate.toISOString().split('Z')[0] + '-03:00';
+        // Converte para UTC-3 adicionando 3 horas (Vercel está em UTC)
+        const brasilDate = new Date(now.getTime() + (3 * 60 * 60 * 1000));
+        const timestamp = brasilDate.toISOString().split('Z')[0] + '-03:00';
 
         const webhookPayload = {
           id: data?.[0]?.id,
