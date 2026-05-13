@@ -291,6 +291,28 @@
       background: var(--gold-dim);
     }
 
+    .btn-resend {
+      padding: 6px 12px;
+      background: transparent;
+      border: 1px solid var(--green);
+      border-radius: 4px;
+      color: var(--green);
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: var(--transition);
+      font-weight: 500;
+    }
+
+    .btn-resend:hover {
+      background: var(--green);
+      color: #0b0908;
+    }
+
+    .btn-resend.loading {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     .search-input {
       padding: 10px 14px;
       border: 1px solid var(--border);
@@ -891,6 +913,7 @@
               <th>Renda</th>
               <th>Investimento</th>
               <th>Data</th>
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody id="table-body">
@@ -1258,6 +1281,7 @@
             <td>${(d.q4_renda || '').substring(0, 20)}...</td>
             <td>${(d.q16_valor_formacao || '').substring(0, 15)}...</td>
             <td style="font-family: 'DM Mono';">${date}</td>
+            <td onclick="event.stopPropagation()"><button class="btn-resend" onclick="resendWebhook('${d.id}', '${d.email}')">Reenviar</button></td>
           </tr>
         `;
       }).join('');
@@ -1517,6 +1541,40 @@
       }).catch(() => {
         showToast('Erro ao enviar para Sheets', true);
       });
+    }
+
+    async function resendWebhook(id, email) {
+      const btn = event.target;
+      btn.disabled = true;
+      btn.classList.add('loading');
+      const originalText = btn.textContent;
+      btn.textContent = 'Reenviando...';
+
+      try {
+        const res = await fetch('/api/webhook-resend', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+          showToast(`✓ Webhook reenviado para ${email}`);
+          btn.textContent = '✓ Enviado';
+          btn.style.borderColor = 'var(--green)';
+        } else {
+          showToast(`Erro: ${result.error}`, true);
+          btn.textContent = originalText;
+          btn.disabled = false;
+          btn.classList.remove('loading');
+        }
+      } catch (error) {
+        showToast('Erro ao reenviar webhook', true);
+        btn.textContent = originalText;
+        btn.disabled = false;
+        btn.classList.remove('loading');
+      }
     }
 
     function showToast(msg, isError = false) {
