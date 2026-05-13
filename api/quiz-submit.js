@@ -92,42 +92,49 @@ export default async function handler(req, res) {
         const utcDate = new Date(now.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }));
         const timestamp = utcDate.toISOString().split('Z')[0] + '-03:00';
 
-        await fetch(process.env.N8N_WEBHOOK, {
+        const webhookPayload = {
+          id: data?.[0]?.id,
+          timestamp,
+          nome,
+          telefone,
+          email,
+          perfil_dominante,
+          score_busca,
+          score_virada,
+          score_chamado,
+          q1_fase_vida,
+          q2_situacao_profissional,
+          q3_faixa_etaria,
+          q4_renda,
+          q5_historico,
+          q6_ja_tentou,
+          q7_o_que_faltou,
+          q8_frase_ressoa,
+          q9_area_desafio,
+          q10_mudanca_desejada,
+          q11_como_quer_se_sentir,
+          q12_reacao_emocional,
+          q13_interesse_profissional,
+          q14_o_que_aproximaria,
+          q15_momento_investimento,
+          q16_valor_formacao,
+          q17_expectativa
+        };
+
+        const webhookResponse = await fetch(process.env.N8N_WEBHOOK, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: data?.[0]?.id,
-            timestamp,
-            nome,
-            telefone,
-            email,
-            perfil_dominante,
-            score_busca,
-            score_virada,
-            score_chamado,
-            q1_fase_vida,
-            q2_situacao_profissional,
-            q3_faixa_etaria,
-            q4_renda,
-            q5_historico,
-            q6_ja_tentou,
-            q7_o_que_faltou,
-            q8_frase_ressoa,
-            q9_area_desafio,
-            q10_mudanca_desejada,
-            q11_como_quer_se_sentir,
-            q12_reacao_emocional,
-            q13_interesse_profissional,
-            q14_o_que_aproximaria,
-            q15_momento_investimento,
-            q16_valor_formacao,
-            q17_expectativa
-          })
-        }).catch(err => {
-          console.error('N8n webhook error:', err.message);
+          body: JSON.stringify(webhookPayload),
+          timeout: 10000
         });
+
+        if (!webhookResponse.ok) {
+          console.error(`N8n webhook returned status ${webhookResponse.status}`);
+        } else {
+          console.log('N8n webhook sent successfully');
+        }
       } catch (webhookError) {
-        console.error('Webhook error:', webhookError);
+        console.error('Webhook error:', webhookError.message);
         // Não falha a requisição se webhook falhar
       }
     }
